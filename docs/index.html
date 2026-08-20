@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Does a Learned Model Beat a Hand-Written Rule at Flagging Declining Content?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Condensed:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #2B3A55;
+  --text: #1A1A1A;
+  --cream: #E8DFC9;
+  --card: #DDD2B4;
+  --border: #D2C7A8;
+  --teal: #4C7A72;
+  --muted: #6B6350;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--cream);
+  color: var(--text);
+  font-family: 'Roboto Condensed', sans-serif;
+  line-height: 1.65;
+  font-size: 17px;
+}
+.layout {
+  display: flex;
+  max-width: 1100px;
+  margin: 0 auto;
+  gap: 40px;
+  align-items: flex-start;
+}
+nav.toc {
+  position: sticky;
+  top: 40px;
+  width: 220px;
+  flex-shrink: 0;
+  padding: 40px 0;
+  font-size: 14px;
+}
+nav.toc a {
+  display: block;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 6px 0;
+  border-left: 2px solid transparent;
+  padding-left: 12px;
+}
+nav.toc a:hover { color: var(--navy); border-left-color: var(--teal); }
+main {
+  flex: 1;
+  min-width: 0;
+  padding: 40px 24px 100px;
+}
+header.title-block {
+  margin-bottom: 40px;
+}
+h1 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  font-size: clamp(26px, 4vw, 36px);
+  line-height: 1.25;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+.byline {
+  color: var(--muted);
+  font-size: 15px;
+  margin-bottom: 24px;
+}
+h2 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  color: var(--navy);
+  margin: 48px 0 16px;
+  scroll-margin-top: 20px;
+}
+h3 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  margin: 24px 0 10px;
+}
+p { margin-bottom: 14px; max-width: 68ch; }
+.abstract-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 8px;
+}
+.abstract-box p { margin-bottom: 0; max-width: none; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 560px;
+  margin: 16px 0 24px;
+  font-size: 15px;
+}
+th, td {
+  text-align: left;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+}
+th { font-family: 'Oswald', sans-serif; font-weight: 500; color: var(--navy); }
+img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); display: block; margin: 20px 0 4px; }
+.chart-caption {
+  font-size: 14px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 24px;
+}
+ul, ol { margin: 0 0 16px 24px; max-width: 68ch; }
+li { margin-bottom: 8px; }
+.callout {
+  background: var(--card);
+  border-left: 4px solid var(--teal);
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 16px 0 24px;
+  font-size: 15px;
+  max-width: 68ch;
+}
+code {
+  background: var(--card);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+a { color: var(--teal); }
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 24px;
+  margin-top: 60px;
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (max-width: 800px) {
+  .layout { flex-direction: column; }
+  nav.toc { display: none; }
+  main { padding: 24px 18px 80px; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+<nav class="toc">
+  <a href="#abstract">Abstract</a>
+  <a href="#intro">Introduction</a>
+  <a href="#data">Data</a>
+  <a href="#methodology">Methodology</a>
+  <a href="#results">Results</a>
+  <a href="#limitations">Limitations</a>
+  <a href="#recommendations">Recommendations</a>
+  <a href="#reproducibility">Reproducibility</a>
+  <a href="#acknowledgments">Acknowledgments</a>
+</nav>
+
+<main>
+<header class="title-block">
+  <h1>Does a Learned Model Beat a Hand-Written Rule at Flagging Declining Content?</h1>
+  <p class="byline">Ahil Adnan &middot; FlyRank AI ML Internship &middot; <a href="https://github.com/Ahil-Adnan/FlyRank-Machine-Learning">github.com/Ahil-Adnan/FlyRank-Machine-Learning</a></p>
+</header>
+
+<section id="abstract">
+<h2>Abstract</h2>
+<div class="abstract-box">
+<p>Can a simple, hand-written rule that flags pages likely to lose search traffic be beaten by a learned model &mdash; and does the answer depend on how carefully the model is validated? Using FlyRank's internship data warehouse, a real production release covering roughly 17 months of search and analytics performance across dozens of clients, March 2026 page-level features were used to predict whether a page's clicks would drop 20%+ by April 2026, and compared against a hand-written staleness-and-CTR rule. A logistic regression model was trained and evaluated with a client-grouped train/test split, so that no client's pages appeared in both sides, to avoid the model simply memorizing individual clients. The model outperformed the baseline rule at precision@20 (0.500 vs. 0.400) but underperformed it at precision@50 (0.380 vs. 0.480), a crossover that held after fixing a real timing-leakage bug caught mid-analysis. A follow-up audit found that this same model's reported precision is sensitive to split design: a naive random split produced meaningfully higher, likely optimistic numbers on the identical data. This is decision-support evidence for where a content team might look first, not a validated production system &mdash; read alongside the Limitations section before acting on it.</p>
+</div>
+</section>
+
+<section id="intro">
+<h2>Introduction / Problem</h2>
+<p>A content team managing thousands of pages across dozens of clients can't manually check every page every month for signs it's losing search traffic. Someone has to decide which pages get a human look first. The obvious approach is a simple rule: flag pages that are old and getting weak clicks. That rule is fast to write and easy to explain &mdash; but does it actually work, and does a learned model genuinely do better, or does it just look better because of how it was tested?</p>
+<p>This paper answers both questions on real data: whether a logistic regression model beats a hand-written baseline rule at ranking pages by decline risk, and whether that comparison holds up once the model is checked the way a skeptical reviewer would check it &mdash; a grouped validation split, a leakage audit, and an honest account of what changed between runs.</p>
+</section>
+
+<section id="data">
+<h2>Data</h2>
+<p>Source: <code>FlyRank/internship-warehouse</code>, a real production data release (build v20260703) covering roughly 17 months of search and content performance, from 2025-01-27 to 2026-06-30, across 104 pseudonymized clients and roughly 520,000 content items. The main fact table used here, <code>fact_content_daily_performance</code>, holds about 78.8 million rows at the grain of one report-date &times; client &times; content item.</p>
+<p>This analysis used two real, adjacent months from that release: <strong>March 2026</strong> as the feature window (what's knowable at the decision moment) and <strong>April 2026</strong> as the outcome window (what actually happened next). Both months are fully populated, non-final months of the release &mdash; the final month is deliberately excluded from any label logic, since it can't have a genuine future outcome to compare against.</p>
+<p>Rows without usable Search Console data (<code>gsc_data_available</code> is <code>FALSE</code>) were excluded &mdash; this is a real property of the warehouse, not an arbitrary filter: a meaningful share of clients have incomplete or not-yet-started tracking history for parts of the panel, and treating a missing measurement as a real zero would distort every downstream number. No client names, raw queries, or any other private identifying detail appear in this paper or its notebooks; all client and content identifiers are the warehouse's own pseudonymized hashes.</p>
+</section>
+
+<section id="methodology">
+<h2>Methodology</h2>
+
+<h3>Label</h3>
+<p>A page is labeled <strong>declining</strong> if its April clicks fell below 80% of its March clicks (a 20%+ drop). A flat "any decrease" threshold was avoided on purpose &mdash; ordinary month-to-month noise would label far too many pages as declining for no real reason. Pages that vanished from the April data entirely were treated as 0 April clicks, the strongest form of decline. On this definition, the base rate is <strong>23.7%</strong> of pages labeled declining across the full March panel.</p>
+
+<h3>Features</h3>
+<p>Four features, all aggregated from March only &mdash; strictly before the outcome window used to build the label: total March impressions, total March clicks, average March search ranking position, and days since the page's content was last updated (with unresolvable or future-dated update timestamps treated as unknown, not as "recently updated" &mdash; see the leakage note below).</p>
+
+<h3>Baseline</h3>
+<p>The hand-written baseline scores a page highest if it is stale (180+ days since its last real update), visible (real March impressions), and underperforming its click-through rate for its ranking position (below roughly half the position-appropriate benchmark CTR). Each scored page carries one reason code explaining why it was flagged.</p>
+
+<h3>Validation design</h3>
+<p>The primary split groups all of a client's pages entirely into either train or test &mdash; never both &mdash; using a 70/30 split by client (32 train clients, 15 test clients from 47 total). This matters because rows from the same client share hidden structure; a random row-level split lets a model partly memorize which specific clients tend to decline, inflating its apparent skill on data it has effectively already seen.</p>
+
+<h3>Leakage checks</h3>
+<p>Two leaks were actively hunted, per the internship's own leakage-audit process:</p>
+<ul>
+<li><strong>A real timing leak, caught and fixed.</strong> The content-update timestamp used to compute staleness sometimes fell <em>after</em> the March reporting date &mdash; a future-dated update leaking into a feature that should only reflect the past. This was caught during error review (the model's three most confident wrong predictions all shared this exact anomaly), fixed by treating those cases as "staleness unknown" rather than a real value, and the full comparison was rerun.</li>
+<li><strong>A deliberate leak test.</strong> A feature computed directly from the training label (<code>client_decline_rate</code>, each client's average decline rate in the training split) was added on purpose to confirm the test harness would react. It raised precision@20 only modestly (0.400 &rarr; 0.450) rather than toward a near-perfect score &mdash; because the grouped split means test clients never appear in training, this specific leak mostly collapses to a constant value on the test set, structurally blunting its own effect. This is discussed further in Limitations.</li>
+</ul>
+<p>A train-without-suspect check was also run on the top-magnitude feature, <code>march_clicks</code>: removing it dropped precision@20 from 0.400 to 0.350 &mdash; a small, proportionate decline consistent with losing one honest signal, not the sharp collapse toward a real score that would indicate label leakage.</p>
+</section>
+
+<section id="results">
+<h2>Results</h2>
+<p>All numbers below are computed on the same held-out test set (client-grouped, 30% of clients, unseen during training), at the same two cutoffs, next to the same base rate.</p>
+
+<img src="chart1_model_vs_baseline.png" alt="Bar chart comparing baseline and model precision at 20 and 50, with base rate line at 0.197">
+<p class="chart-caption">Both methods clear the base rate comfortably at both cutoffs. The model leads at precision@20; the baseline leads at precision@50.</p>
+
+<table>
+<tr><th></th><th>Precision@20</th><th>Precision@50</th></tr>
+<tr><td>Baseline (hand rule)</td><td>0.400</td><td>0.480</td></tr>
+<tr><td>Model (logistic regression)</td><td>0.500</td><td>0.380</td></tr>
+<tr><td>Base rate</td><td>0.197</td><td>0.197</td></tr>
+</table>
+
+<p>The model is stronger among its most confident picks; the baseline stays more consistently useful across a wider list. This crossover held after the timing-leak fix &mdash; the fix shifted both numbers but did not change which method wins at which cutoff.</p>
+
+<h3>Split sensitivity</h3>
+<p>A follow-up audit re-ran the identical model and features under a naive random row split instead of the grouped split, to check how much the validation design itself was shaping the reported score.</p>
+
+<img src="chart2_split_sensitivity.png" alt="Bar chart comparing precision at 20 and 50 under a random split versus a grouped-by-client split, same model and features">
+<p class="chart-caption">Same model, same four features &mdash; only the split changed. The random split reports meaningfully higher precision at both cutoffs.</p>
+
+<table>
+<tr><th></th><th>Precision@20</th><th>Precision@50</th></tr>
+<tr><td>Random split (naive)</td><td>0.600</td><td>0.560</td></tr>
+<tr><td>Grouped-by-client split (honest)</td><td>0.400</td><td>0.360</td></tr>
+</table>
+
+<p>The gap is the finding: a random split reports a meaningfully rosier picture of the same model on the same data. This is consistent with the model partly benefiting from seeing a given client's pages during training and being tested on other pages from that same client &mdash; exactly the memorization risk the grouped split is designed to prevent.</p>
+
+<h3>Error analysis</h3>
+<p>The model's coefficients show no single feature dominating (largest: <code>march_clicks</code> at 0.0052; smallest: <code>days_since_update</code> at effectively zero once the timing leak was fixed) &mdash; a diffuse, unremarkable set of weights, not the lopsided "one feature explains everything" pattern that would suggest a leak.</p>
+<p>The model's three most confident wrong predictions (each scored close to 1.0 probability of decline, but the page did not actually decline) all shared two traits: strong March performance (good ranking position, real click volume) and unresolvable staleness data. A plausible reading, not a confirmed one: pages doing well in March simply have more room to fall 20%+ by April than pages already struggling, so part of what the model is learning may be an ordinary regression-to-the-mean pattern rather than a decline signal specific to those pages. Testing this properly would need multiple months of history per page, which the current single-month feature set does not provide.</p>
+</section>
+
+<section id="limitations">
+<h2>Limitations &amp; Honest Framing</h2>
+<ul>
+<li><strong>One month, one label definition.</strong> The 20%-drop-in-30-days label is one reasonable choice, not the only valid one. A different threshold or window could change which pages get flagged and possibly which method wins at which cutoff.</li>
+<li><strong>Result is directional, not a guarantee.</strong> The model's precision@20 win and the baseline's precision@50 win are observed on one client-grouped 70/30 split, on one pair of months. They are not validated to hold on other months, other client mixes, or repeated resampling.</li>
+<li><strong>A genuine run-to-run reproducibility gap was found.</strong> Re-running the identical grouped-split procedure in a later audit produced different precision numbers under the same model and same random seed (0.500/0.380 in the original run vs. 0.400/0.360 in the audit's re-run of the same grouped design). The most likely cause: the underlying SQL aggregation has no explicit row ordering, so which specific clients land in "train" vs. "test" can differ between runs even with a fixed seed on the split step itself. This is reported honestly as an open reproducibility issue, not smoothed over &mdash; a reader should treat the exact precision values as approximate, not exact, until the aggregation query is made order-stable.</li>
+<li><strong>The deliberate-leak test likely understates how badly a real leak could hurt this setup.</strong> Because the grouped split structurally blunts a client-level leaked feature (it collapses toward a constant for unseen test clients), this particular verification method is weaker evidence than the leakage skill's own guidance expects ("a jump toward 1.0"). A leak that operated at the content level rather than the client level might not be caught by this same check.</li>
+<li><strong>This is decision support, not an automated action system.</strong> Nothing here recommends removing a human from the loop &mdash; both the baseline and the model are ranking tools to help a person decide where to look first, not a system that should independently take action on a page.</li>
+</ul>
+</section>
+
+<section id="recommendations">
+<h2>Ranked Recommendations</h2>
+<ol>
+<li><strong>Use the model to prioritize the first look; use the baseline as a second pass.</strong> The model's precision@20 advantage suggests it's better at surfacing the highest-confidence cases first. The baseline's precision@50 advantage suggests it stays more reliable further down a list &mdash; combining both as first-pass and backstop is better supported by the evidence here than trusting either alone.</li>
+<li><strong>Fix the split's reproducibility gap before reporting any single precision number as final.</strong> Add an explicit, stable ordering to the March aggregation query so the same seed reliably produces the same train/test client assignment.</li>
+<li><strong>Treat "staleness unknown" as its own category in any dashboard or report, not as "fresh."</strong> The timing-leak fix showed this distinction changes real numbers; collapsing it back to a default would silently reintroduce the same class of error.</li>
+<li><strong>Extend the label to multiple months before trusting the regression-to-the-mean hypothesis.</strong> The current single-month design can't distinguish genuine decline risk from ordinary reversion for high performers &mdash; a longer window per page is the natural next step.</li>
+</ol>
+</section>
+
+<section id="reproducibility">
+<h2>Reproducibility</h2>
+<p>All code, real notebook outputs, and this paper's source live in the public repository below. Every number in this paper was pulled directly from executed notebook cells, not recomputed or approximated for the write-up.</p>
+<ul>
+<li>Repository: <a href="https://github.com/Ahil-Adnan/FlyRank-Machine-Learning">github.com/Ahil-Adnan/FlyRank-Machine-Learning</a></li>
+<li>Model + baseline comparison: <code>work/notebooks/w05_model.ipynb</code></li>
+<li>Validation audit, split-sensitivity check, leakage tests: <code>work/notebooks/w06_validation_audit.ipynb</code></li>
+<li>Random seed: <code>42</code>, fixed throughout (see Limitations for the one known exception to exact reproducibility)</li>
+<li>Data access: <a href="https://huggingface.co/datasets/FlyRank/internship-warehouse">huggingface.co/datasets/FlyRank/internship-warehouse</a> (gated, free instant-approval access)</li>
+</ul>
+</section>
+
+<section id="acknowledgments">
+<h2>Acknowledgments &amp; Data Credit</h2>
+<p>Built on the FlyRank ML Internship dataset. Learn more at <a href="https://flyrank.ai">flyrank.ai</a>.</p>
+</section>
+
+</main>
+</div>
+
+<footer>
+  Ahil Adnan &middot; FlyRank AI ML Internship Capstone &middot; <a href="https://ahil-adnan.github.io">ahil-adnan.github.io</a>
+</footer>
+
+</body>
+</html>
